@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { carApiService, CarDetail as ApiCarDetail, CarSearchParams } from '../services/carApi';
 
-interface Car {
+// Keep the existing Car interface for backward compatibility
+interface Car extends ApiCarDetail {
+  // Legacy fields that might be used in existing components
+}
+
+// Use the API CarDetail type as the primary interface
+interface CarDetail extends ApiCarDetail {
   id: string;
   make: string;
   model: string;
@@ -22,6 +29,7 @@ interface Car {
   };
   matchScore?: number;
   priceCategory?: string;
+  lastUpdated?: string;
 }
 
 interface QuizAnswer {
@@ -36,15 +44,19 @@ interface QuizAnswer {
 }
 
 interface CarContextType {
-  cars: Car[];
-  recommendations: Car[];
+  cars: CarDetail[];
+  recommendations: CarDetail[];
   savedCars: string[];
   quizResults: QuizAnswer | null;
   setQuizResults: (results: QuizAnswer) => void;
   saveCar: (carId: string) => void;
   removeSavedCar: (carId: string) => void;
-  getCarById: (id: string) => Car | undefined;
-  searchCars: (filters: any) => Car[];
+  getCarById: (id: string) => CarDetail | undefined;
+  searchCars: (filters: any) => CarDetail[];
+  // New API-powered methods
+  searchCarsAdvanced: (params: CarSearchParams) => Promise<void>;
+  isLoading: boolean;
+  searchError: string | null;
 }
 
 const CarContext = createContext<CarContextType | undefined>(undefined);
@@ -58,7 +70,7 @@ export const useCarContext = () => {
 };
 
 // Mock car data
-const mockCars: Car[] = [
+const mockCars: CarDetail[] = [
   {
     id: '1',
     make: 'Maruti Suzuki',
@@ -77,8 +89,38 @@ const mockCars: Car[] = [
       transmission: 'Manual/AMT',
       seating: 5,
       bootSpace: 268,
-      groundClearance: 163
-    }
+      groundClearance: 163,
+      fuelTankCapacity: 37,
+      dimensions: {
+        length: 3845,
+        width: 1735,
+        height: 1530,
+        wheelbase: 2450
+      }
+    },
+    features: {
+      safety: ['Dual Airbags', 'ABS with EBD', 'Reverse Parking Sensors'],
+      comfort: ['AC', 'Power Steering', 'Central Locking'],
+      technology: ['Touchscreen Infotainment', 'Bluetooth', 'USB Connectivity'],
+      exterior: ['Alloy Wheels', 'Body Colored Bumpers', 'Fog Lamps'],
+      interior: ['Fabric Seats', 'Tilt Steering', 'Digital Cluster']
+    },
+    images: ['https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=500'],
+    colors: ['Pearl White', 'Metallic Silver', 'Granite Grey', 'Pearl Red'],
+    variants: [
+      {
+        id: '1-lxi',
+        name: 'LXI',
+        price: 6.0,
+        features: ['Basic features'],
+        engine: '1.2L Petrol',
+        transmission: 'Manual',
+        fuelType: 'Petrol',
+        mileage: 22.5
+      }
+    ],
+    dealers: [],
+    lastUpdated: new Date().toISOString()
   },
   {
     id: '2',
@@ -98,8 +140,27 @@ const mockCars: Car[] = [
       transmission: 'CVT',
       seating: 5,
       bootSpace: 524,
-      groundClearance: 170
-    }
+      groundClearance: 170,
+      fuelTankCapacity: 60,
+      dimensions: {
+        length: 4885,
+        width: 1840,
+        height: 1455,
+        wheelbase: 2825
+      }
+    },
+    features: {
+      safety: ['10 Airbags', 'Toyota Safety Sense', 'Pre-collision System'],
+      comfort: ['Leather Seats', 'Dual Zone AC', 'Power Seats'],
+      technology: ['9-inch Touchscreen', 'Wireless Charging', 'JBL Audio'],
+      exterior: ['LED Headlights', 'Sunroof', '18-inch Alloys'],
+      interior: ['Premium Interior', 'Ambient Lighting', 'Heated Seats']
+    },
+    images: ['https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=500'],
+    colors: ['Pearl White', 'Attitude Black', 'Silver Metallic', 'Graphite Metallic'],
+    variants: [],
+    dealers: [],
+    lastUpdated: new Date().toISOString()
   },
   {
     id: '3',
@@ -188,10 +249,12 @@ const mockCars: Car[] = [
 ];
 
 export const CarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cars] = useState<Car[]>(mockCars);
-  const [recommendations, setRecommendations] = useState<Car[]>([]);
+  const [cars] = useState<CarDetail[]>(mockCars);
+  const [recommendations, setRecommendations] = useState<CarDetail[]>([]);
   const [savedCars, setSavedCars] = useState<string[]>([]);
   const [quizResults, setQuizResultsState] = useState<QuizAnswer | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load saved cars from localStorage
@@ -205,7 +268,7 @@ export const CarProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  const calculateMatchScore = (car: Car, answers: QuizAnswer): number => {
+  const calculateMatchScore = (car: CarDetail, answers: QuizAnswer): number => {
     let score = 0;
     let maxScore = 0;
 
@@ -300,11 +363,11 @@ export const CarProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('carMatchSavedCars', JSON.stringify(updatedSaved));
   };
 
-  const getCarById = (id: string): Car | undefined => {
+  const getCarById = (id: string): CarDetail | undefined => {
     return cars.find(car => car.id === id);
   };
 
-  const searchCars = (filters: any): Car[] => {
+  const searchCars = (filters: any): CarDetail[] => {
     return cars.filter(car => {
       // Apply filters
       if (filters.bodyType && car.bodyType.toLowerCase() !== filters.bodyType.toLowerCase()) {
@@ -323,6 +386,19 @@ export const CarProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const searchCarsAdvanced = async (params: CarSearchParams) => {
+    setIsLoading(true);
+    setSearchError(null);
+    
+    try {
+      const result = await carApiService.searchCars(params, quizResults);
+      setRecommendations(result.cars);
+    } catch (error) {
+      setSearchError(error instanceof Error ? error.message : 'Search failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <CarContext.Provider value={{
       cars,
@@ -333,7 +409,10 @@ export const CarProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       saveCar,
       removeSavedCar,
       getCarById,
-      searchCars
+      searchCars,
+      searchCarsAdvanced,
+      isLoading,
+      searchError
     }}>
       {children}
     </CarContext.Provider>

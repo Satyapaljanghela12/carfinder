@@ -30,6 +30,9 @@ const Header = () => {
             <Link to="/browse" className="text-gray-700 hover:text-purple-600 transition-colors">
               Browse Cars
             </Link>
+            <Link to="/search" className="text-gray-700 hover:text-purple-600 transition-colors">
+              Advanced Search
+            </Link>
             <Link to="/quiz" className="text-gray-700 hover:text-purple-600 transition-colors">
               Find My Car
             </Link>
@@ -108,6 +111,13 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Browse Cars
+              </Link>
+              <Link
+                to="/search"
+                className="px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Advanced Search
               </Link>
               <Link
                 to="/quiz"

@@ -13,6 +13,7 @@ import ComparePage from './pages/ComparePage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import BrowsePage from './pages/BrowsePage';
+import EnhancedBrowsePage from './pages/EnhancedBrowsePage';
 import { useAuth } from './contexts/AuthContext';
 
 const AppContent = () => {
@@ -29,6 +30,7 @@ const AppContent = () => {
           <Route path="/car/:id" element={<CarDetailPage />} />
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/search" element={<EnhancedBrowsePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
