@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Shield, Zap, Users, TrendingUp, Search, Sparkles, Award, Clock } from 'lucide-react';
+import { ArrowRight, Star, Shield, Zap, Users, TrendingUp, Search, Sparkles, Award, Clock, Car } from 'lucide-react';
 
 const HomePage = () => {
   const features = [
