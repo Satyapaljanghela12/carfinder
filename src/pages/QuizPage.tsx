@@ -233,7 +233,7 @@ const QuizPage = () => {
 
           {/* Options */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 animate-in fade-in duration-700 delay-400">
-            {currentQuestion.options.map((option) => (
+            {currentQuestion.options.map((option, index) => (
               <button
                 key={option.value}
                 onClick={() => handleAnswer(option.value)}
