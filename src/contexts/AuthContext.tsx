@@ -28,6 +28,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     // Check for stored user session
@@ -104,8 +105,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('carMatchUser');
   };
 
+  const quickLogin = () => {
+    const demoUser: User = {
+      id: 'demo',
+      name: 'Demo User',
+      email: 'demo@carmatch.com',
+      role: 'user'
+    };
+    setUser(demoUser);
+    localStorage.setItem('carMatchUser', JSON.stringify(demoUser));
+    setShowLoginModal(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      register, 
+      logout, 
+      isLoading, 
+      showLoginModal, 
+      setShowLoginModal, 
+      quickLogin 
+    }}>
       {children}
     </AuthContext.Provider>
   );

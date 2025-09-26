@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const BrowsePage = () => {
   const { cars, savedCars, saveCar, removeSavedCar, searchCars } = useCarContext();
-  const { user } = useAuth();
+  const { user, setShowLoginModal } = useAuth();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,7 +69,7 @@ const BrowsePage = () => {
 
   const handleSaveCar = (carId: string) => {
     if (!user) {
-      // Handle login redirect
+      setShowLoginModal(true);
       return;
     }
     
@@ -129,7 +129,7 @@ const BrowsePage = () => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200"
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -143,7 +143,7 @@ const BrowsePage = () => {
               {selectedCars.length > 1 && (
                 <Link
                   to={`/compare?cars=${selectedCars.join(',')}`}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 transform hover:scale-105"
                 >
                   <span>Compare ({selectedCars.length})</span>
                 </Link>
@@ -270,7 +270,7 @@ const BrowsePage = () => {
               const isSelected = selectedCars.includes(car.id);
 
               return (
-                <div key={car.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all">
+                <div key={car.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="relative">
                     <img
                       src={car.image}
@@ -342,7 +342,7 @@ const BrowsePage = () => {
                     <div className="flex space-x-2">
                       <Link
                         to={`/car/${car.id}`}
-                        className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center hover:bg-purple-700 transition-all"
+                        className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center hover:bg-purple-700 transition-all duration-200 transform hover:scale-105"
                       >
                         View Details
                       </Link>
@@ -369,7 +369,7 @@ const BrowsePage = () => {
               const isSelected = selectedCars.includes(car.id);
 
               return (
-                <div key={car.id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
+                <div key={car.id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
                     <div className="relative">
                       <img
@@ -406,7 +406,7 @@ const BrowsePage = () => {
                       <div className="flex space-x-2">
                         <Link
                           to={`/car/${car.id}`}
-                          className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center hover:bg-purple-700 transition-all text-sm"
+                          className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center hover:bg-purple-700 transition-all duration-200 text-sm transform hover:scale-105"
                         >
                           Details
                         </Link>

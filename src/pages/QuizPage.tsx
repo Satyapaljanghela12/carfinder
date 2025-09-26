@@ -185,10 +185,18 @@ const QuizPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-20 h-20 bg-purple-200/30 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-16 h-16 bg-blue-200/30 rounded-full animate-float delay-1000"></div>
+        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-purple-300/30 rounded-full animate-float delay-500"></div>
+        <div className="absolute bottom-40 right-1/3 w-8 h-8 bg-blue-300/30 rounded-full animate-float delay-700"></div>
+      </div>
+      
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-8 animate-in fade-in duration-500">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-600">
               Question {currentStep + 1} of {questions.length}
@@ -199,15 +207,17 @@ const QuizPage = () => {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-500 relative overflow-hidden"
               style={{ width: `${progress}%` }}
-            ></div>
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
           </div>
         </div>
 
         {/* Question Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center mb-8 animate-in fade-in duration-700 delay-200">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               {currentQuestion.title}
             </h1>
@@ -222,16 +232,17 @@ const QuizPage = () => {
           </div>
 
           {/* Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 animate-in fade-in duration-700 delay-400">
             {currentQuestion.options.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleAnswer(option.value)}
-                className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-lg ${
+                className={`p-6 rounded-xl border-2 text-left transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in fade-in duration-500 ${
                   isSelected(option.value)
                     ? 'border-purple-600 bg-purple-50 shadow-lg'
                     : 'border-gray-200 hover:border-purple-300'
                 }`}
+                style={{ animationDelay: `${600 + index * 100}ms` }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -243,7 +254,7 @@ const QuizPage = () => {
                     </p>
                   </div>
                   {isSelected(option.value) && (
-                    <CheckCircle className="w-6 h-6 text-purple-600 ml-2 flex-shrink-0" />
+                    <CheckCircle className="w-6 h-6 text-purple-600 ml-2 flex-shrink-0 animate-in zoom-in-95 duration-200" />
                   )}
                 </div>
               </button>
@@ -251,14 +262,14 @@ const QuizPage = () => {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between">
+          <div className="flex justify-between animate-in fade-in duration-700 delay-800">
             <button
               onClick={handlePrevious}
               disabled={currentStep === 0}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all ${
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                 currentStep === 0
                   ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50 transform hover:scale-105'
               }`}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -268,20 +279,20 @@ const QuizPage = () => {
             <button
               onClick={handleNext}
               disabled={!canProceed()}
-              className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-semibold transition-all ${
+              className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-semibold transition-all duration-200 group ${
                 canProceed()
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg'
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg transform hover:scale-105 hover:shadow-xl'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
               <span>{currentStep === questions.length - 1 ? 'Get Recommendations' : 'Next'}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           </div>
         </div>
 
         {/* Tips */}
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center animate-in fade-in duration-700 delay-1000">
           <p className="text-gray-600">
             💡 <strong>Tip:</strong> Be honest with your answers to get the most accurate recommendations
           </p>
